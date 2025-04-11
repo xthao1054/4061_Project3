@@ -39,7 +39,7 @@ int count_letters(const char *file_name, int *counts) {
     }
 
     if (fclose(file) != 0) {
-        perror("fclose");
+        perror("Error closing file");
         return -1;
     }
     return 0;
@@ -57,6 +57,10 @@ int process_file(const char *file_name, int out_fd) {
     int counts[ALPHABET_LEN] = {0};
 
     if (count_letters(file_name, counts) == -1) {
+        if (write(out_fd, counts, sizeof(counts)) != sizeof(counts)) {
+            perror("Error writing to pipe");
+            return -1;
+        }
         return -1;
     }
 
@@ -165,5 +169,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < ALPHABET_LEN; i++) {
         printf("%c Count: %d\n", 'a' + i, total_counts[i]);
     }
+
     return 0;
 }
